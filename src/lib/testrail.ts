@@ -6,6 +6,8 @@ const FormData = require('form-data');
 const TestRailLogger = require('./testrail.logger');
 const TestRailCache = require('./testrail.cache');
 import { TestRailOptions, TestRailResult } from './testrail.interface';
+const utils = require('./utils');
+const collectDirFiles = utils.collectDirFiles;
 
 export class TestRail {
   private base: String;
@@ -29,12 +31,12 @@ export class TestRail {
   private makeSync(promise) {
     let done = false;
     let result = undefined;
-    (async() => result = await promise.finally(() => done = true))();
+    (async () => result = await promise.finally(() => done = true))();
     deasync.loopWhile(() => !done);
     return result;
   }
 
-  public getCases (suiteId: number) {
+  public getCases(suiteId: number) {
     let url = `${this.base}/get_cases/${this.options.projectId}&suite_id=${suiteId}`
     if (this.options.groupId) {
       url += `&section_id=${this.options.groupId}`
@@ -44,23 +46,23 @@ export class TestRail {
     }
     return this.makeSync(
       axios({
-        method:'get',
+        method: 'get',
         url: url,
-        headers: { 'Content-Type': 'application/json' }, 
+        headers: { 'Content-Type': 'application/json' },
         auth: {
-            username: this.options.username,
-            password: this.options.password
-        } 
+          username: this.options.username,
+          password: this.options.password
+        }
       })
-      .then(response => {
-        return response.data.map(item =>item.id)
-      })
-      .catch(error => console.error(error))
+        .then(response => {
+          return response.data.map(item => item.id)
+        })
+        .catch(error => console.error(error))
     )
   }
 
-  public createRun (name: string, description: string, suiteId: number) {
-    if (this.options.includeAllInTestRun === false){
+  public createRun(name: string, description: string, suiteId: number) {
+    if (this.options.includeAllInTestRun === false) {
       this.includeAll = false;
       this.caseIds = this.getCases(suiteId);
     }
@@ -81,12 +83,12 @@ export class TestRail {
           case_ids: this.caseIds
         }),
       })
-      .then(response => {
+        .then(response => {
           this.runId = response.data.id;
           // cache the TestRail Run ID
           TestRailCache.store('runId', this.runId);
-      })
-      .catch(error => console.error(error))
+        })
+        .catch(error => console.error(error))
     );
   }
 
@@ -118,14 +120,14 @@ export class TestRail {
         },
         data: JSON.stringify({ results }),
       })
-      .then(response => response.data)
-      .catch(error => { 
-        console.error(error); 
-      })
+        .then(response => response.data)
+        .catch(error => {
+          console.error(error);
+        })
     )
   }
 
-  public uploadAttachment (resultId, path) {
+  public uploadAttachment(resultId, path) {
     const form = new FormData();
     form.append('attachment', fs.createReadStream(path));
 
@@ -144,23 +146,19 @@ export class TestRail {
   }
 
   // This function will attach failed screenshot on each test result(comment) if founds it
-  public uploadScreenshots (caseId, resultId) {
-    const SCREENSHOTS_FOLDER_PATH = path.join(__dirname, 'cypress/screenshots');
+  public uploadScreenshots(caseId, resultId) {
+    const SCREENSHOTS_FOLDER_PATH = path.join(process.cwd(), 'cypress/screenshots');
 
-    fs.readdir(SCREENSHOTS_FOLDER_PATH, (err, files) => {
-      if (err) {
-        return console.log('Unable to scan screenshots folder: ' + err);
-      } 
+    const files = collectDirFiles(SCREENSHOTS_FOLDER_PATH)
 
-      files.forEach(file => {
-        if (file.includes(`C${caseId}`) && /(failed|attempt)/g.test(file)) {
-          try {
-            this.uploadAttachment(resultId, SCREENSHOTS_FOLDER_PATH + file)
-          } catch (err) {
-            console.log('Screenshot upload error: ', err)
-          }
+    files.forEach(file => {
+      if (file.includes(`C${caseId}`) && /(failed|attempt)/g.test(file)) {
+        try {
+          this.uploadAttachment(resultId, file)
+        } catch (err) {
+          console.log('Screenshot upload error: ', err)
         }
-      });
+      }
     });
   };
 
@@ -176,10 +174,10 @@ export class TestRail {
           password: this.options.password,
         },
       })
-      .then(() => {
+        .then(() => {
           TestRailLogger.log('Test run closed successfully');
-      })
-      .catch(error => console.error(error))
+        })
+        .catch(error => console.error(error))
     );
   }
 }

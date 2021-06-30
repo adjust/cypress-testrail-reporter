@@ -55,6 +55,8 @@ var path = require('path');
 var FormData = require('form-data');
 var TestRailLogger = require('./testrail.logger');
 var TestRailCache = require('./testrail.cache');
+var utils = require('./utils');
+var collectDirFiles = utils.collectDirFiles;
 var TestRail = /** @class */ (function () {
     function TestRail(options) {
         this.options = options;
@@ -180,21 +182,17 @@ var TestRail = /** @class */ (function () {
     // This function will attach failed screenshot on each test result(comment) if founds it
     TestRail.prototype.uploadScreenshots = function (caseId, resultId) {
         var _this = this;
-        var SCREENSHOTS_FOLDER_PATH = path.join(__dirname, 'cypress/screenshots');
-        fs.readdir(SCREENSHOTS_FOLDER_PATH, function (err, files) {
-            if (err) {
-                return console.log('Unable to scan screenshots folder: ' + err);
-            }
-            files.forEach(function (file) {
-                if (file.includes("C" + caseId) && /(failed|attempt)/g.test(file)) {
-                    try {
-                        _this.uploadAttachment(resultId, SCREENSHOTS_FOLDER_PATH + file);
-                    }
-                    catch (err) {
-                        console.log('Screenshot upload error: ', err);
-                    }
+        var SCREENSHOTS_FOLDER_PATH = path.join(process.cwd(), 'cypress/screenshots');
+        var files = collectDirFiles(SCREENSHOTS_FOLDER_PATH);
+        files.forEach(function (file) {
+            if (file.includes("C" + caseId) && /(failed|attempt)/g.test(file)) {
+                try {
+                    _this.uploadAttachment(resultId, file);
                 }
-            });
+                catch (err) {
+                    console.log('Screenshot upload error: ', err);
+                }
+            }
         });
     };
     ;
