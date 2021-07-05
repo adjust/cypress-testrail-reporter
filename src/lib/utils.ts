@@ -1,7 +1,5 @@
 const fsLib = require('fs')
 const path = require('path');
-
-
 function collectDirFiles(dir) {
     let results = [];
     let list = fsLib.readdirSync(dir);
