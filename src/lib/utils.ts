@@ -1,9 +1,10 @@
 const fsLib = require('fs')
 const path = require('path');
-function collectDirFiles(dir) {
-    let results = [];
-    let list = fsLib.readdirSync(dir);
-    list.forEach(function (file) {
+
+function collectDirFiles(dir: string): string[] {
+    let results: string[] = [];
+    let list: string[] = fsLib.readdirSync(dir);
+    list.forEach(function (file: string) {
         file = path.join(dir, file);
         let stat = fsLib.statSync(file);
         if (stat && stat.isDirectory()) {

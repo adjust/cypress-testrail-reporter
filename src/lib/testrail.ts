@@ -6,8 +6,7 @@ const FormData = require('form-data');
 const TestRailLogger = require('./testrail.logger');
 const TestRailCache = require('./testrail.cache');
 import { TestRailOptions, TestRailResult } from './testrail.interface';
-const utils = require('./utils');
-const collectDirFiles = utils.collectDirFiles;
+const { collectDirFiles } = require('./utils');
 
 export class TestRail {
   private base: String;
