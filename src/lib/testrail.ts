@@ -53,9 +53,7 @@ export class TestRail {
           password: this.options.password
         }
       })
-        .then(response => {
-          return response.data.map(item => item.id)
-        })
+        .then(response => response.data.map(item => item.id))
         .catch(error => console.error(error))
     )
   }
