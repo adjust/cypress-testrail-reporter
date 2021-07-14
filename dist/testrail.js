@@ -55,8 +55,7 @@ var path = require('path');
 var FormData = require('form-data');
 var TestRailLogger = require('./testrail.logger');
 var TestRailCache = require('./testrail.cache');
-var utils = require('./utils');
-var collectDirFiles = utils.collectDirFiles;
+var collectDirFiles = require('./utils').collectDirFiles;
 var TestRail = /** @class */ (function () {
     function TestRail(options) {
         this.options = options;
@@ -102,9 +101,7 @@ var TestRail = /** @class */ (function () {
                 password: this.options.password
             }
         })
-            .then(function (response) {
-            return response.data.map(function (item) { return item.id; });
-        })
+            .then(function (response) { return response.data.map(function (item) { return item.id; }); })
             .catch(function (error) { return console.error(error); }));
     };
     TestRail.prototype.createRun = function (name, description, suiteId) {
@@ -161,9 +158,7 @@ var TestRail = /** @class */ (function () {
             data: JSON.stringify({ results: results }),
         })
             .then(function (response) { return response.data; })
-            .catch(function (error) {
-            console.error(error);
-        }));
+            .catch(function (error) { return console.error(error); }));
     };
     TestRail.prototype.uploadAttachment = function (resultId, path) {
         var form = new FormData();

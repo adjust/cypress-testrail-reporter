@@ -1,21 +1,19 @@
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 var fsLib = require('fs');
 var path = require('path');
-function collectDirFiles(dir) {
-    var results = [];
-    var list = fsLib.readdirSync(dir);
-    list.forEach(function (file) {
-        file = path.join(dir, file);
-        var stat = fsLib.statSync(file);
+var collectDirFiles = function (dir) {
+    return fsLib.readdirSync(dir).reduce(function (results, fileName) {
+        var fullFilePath = path.join(dir, fileName);
+        var stat = fsLib.statSync(fullFilePath);
         if (stat && stat.isDirectory()) {
-            /* Recurse into a subdirectory */
-            results = results.concat(collectDirFiles(file));
+            return __spreadArray(__spreadArray([], results), collectDirFiles(fullFilePath));
         }
-        else {
-            /* Is a file */
-            results.push(file);
-        }
-    });
-    return results;
-}
+        return __spreadArray(__spreadArray([], results), [fullFilePath]);
+    }, []);
+};
 module.exports.collectDirFiles = collectDirFiles;
 //# sourceMappingURL=utils.js.map
