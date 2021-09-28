@@ -153,7 +153,7 @@ var CypressTestRailReporter = /** @class */ (function (_super) {
     CypressTestRailReporter.prototype.submitResults = function (status, test, comment) {
         var _a;
         var _this = this;
-        var caseIds = shared_1.titleToCaseIds(test.title);
+        var caseIds = (0, shared_1.titleToCaseIds)(test.title);
         var serverTestCaseIds = this.testRailApi.getCases(this.suiteId);
         var invalidCaseIds = caseIds.filter(function (caseId) { return !serverTestCaseIds.includes(caseId); });
         caseIds = caseIds.filter(function (caseId) { return serverTestCaseIds.includes(caseId); });
