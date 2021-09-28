@@ -101,7 +101,7 @@ var TestRail = /** @class */ (function () {
                 password: this.options.password
             }
         })
-            .then(function (response) { return response.data.map(function (item) { return item.id; }); })
+            .then(function (response) { return response.data.cases.map(function (item) { return item.id; }); })
             .catch(function (error) { return console.error(error); }));
     };
     TestRail.prototype.createRun = function (name, description, suiteId) {
